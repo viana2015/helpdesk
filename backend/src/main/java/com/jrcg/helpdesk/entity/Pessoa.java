@@ -1,38 +1,38 @@
 package com.jrcg.helpdesk.entity;
 
-import java.util.Date;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.jrcg.helpdesk.enums.Perfil;
 
-@Entity
-public class Pessoa {
 
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
-	private String nome;
-	
-	private String cpf;
-	
-	private String email;
-	
-	private String senha;
-	
-	@Enumerated(EnumType.STRING)
-	private Perfil perfis;
-	
-	private Date dataCriacao;
+public abstract class Pessoa {
 
-	
+	protected Long id;
+	protected String nome;
+	protected String cpf;
+	protected String email;
+	protected String senha;
+	protected Set<Integer>perfis = new HashSet<>();
+	protected LocalDate dataCriacao = LocalDate.now();
+
+	public Pessoa() {
+		super();
+		addPerfis(Perfil.CLIENTE);
+	}
+
+	public Pessoa(Long id, String nome, String cpf, String email, String senha) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.cpf = cpf;
+		this.email = email;
+		this.senha = senha;
+		addPerfis(Perfil.CLIENTE);
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -73,19 +73,19 @@ public class Pessoa {
 		this.senha = senha;
 	}
 
-	public Perfil getPerfis() {
-		return perfis;
+	public Set<Perfil> getPerfis() {
+		return perfis.stream().map(x -> Perfil.toEnum(x)).collect(Collectors.toSet());
 	}
 
-	public void setPerfis(Perfil perfis) {
-		this.perfis = perfis;
+	public void addPerfis(Perfil perfil) {
+		this.perfis.add(perfil.getCodigo());
 	}
 
-	public Date getDataCriacao() {
+	public LocalDate getDataCriacao() {
 		return dataCriacao;
 	}
 
-	public void setDataCriacao(Date dataCriacao) {
+	public void setDataCriacao(LocalDate dataCriacao) {
 		this.dataCriacao = dataCriacao;
 	}
 
@@ -93,6 +93,7 @@ public class Pessoa {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((cpf == null) ? 0 : cpf.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
@@ -106,6 +107,11 @@ public class Pessoa {
 		if (getClass() != obj.getClass())
 			return false;
 		Pessoa other = (Pessoa) obj;
+		if (cpf == null) {
+			if (other.cpf != null)
+				return false;
+		} else if (!cpf.equals(other.cpf))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -113,6 +119,8 @@ public class Pessoa {
 			return false;
 		return true;
 	}
+	
+	
 	
 	
 }
