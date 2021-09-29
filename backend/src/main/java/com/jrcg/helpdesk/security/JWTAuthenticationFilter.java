@@ -18,23 +18,24 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jrcg.helpdesk.dtos.CredenciaisDTO;
 
+
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private AuthenticationManager authenticationManager;
-	private JWTUltil jwtUltil;
-	
-	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JWTUltil jwtUltil) {
+	private JWTUltil jwtUtil;
+
+	public JWTAuthenticationFilter(AuthenticationManager authenticationManager, JWTUltil jwtUtil) {
 		super();
 		this.authenticationManager = authenticationManager;
-		this.jwtUltil = jwtUltil;
+		this.jwtUtil = jwtUtil;
 	}
-	
+
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
 		try {
 			CredenciaisDTO creds = new ObjectMapper().readValue(request.getInputStream(), CredenciaisDTO.class);
-			UsernamePasswordAuthenticationToken authenticationToken =
+			UsernamePasswordAuthenticationToken authenticationToken = 
 					new UsernamePasswordAuthenticationToken(creds.getEmail(), creds.getSenha(), new ArrayList<>());
 			Authentication authentication = authenticationManager.authenticate(authenticationToken);
 			return authentication;
@@ -48,9 +49,9 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 			Authentication authResult) throws IOException, ServletException {
 		
 		String username = ((UserSS) authResult.getPrincipal()).getUsername();
-		String token = jwtUltil.generateToken(username);
+		String token = jwtUtil.generateToken(username);
 		response.setHeader("access-control-expose-headers", "Authorization");
-		response.setHeader("Authorization", "Bearer" + token);
+		response.setHeader("Authorization", "Bearer " + token);
 	}
 	
 	@Override
@@ -65,7 +66,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private CharSequence json() {
 		long date = new Date().getTime();
 		return "{"
-				+ "\timestamp\": " + date + ", "
+				+ "\"timestamp\": " + date + ", " 
 				+ "\"status\": 401, "
 				+ "\"error\": \"Não autorizado\", "
 				+ "\"message\": \"Email ou senha inválidos\", "
